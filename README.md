@@ -1,4 +1,4 @@
-Check-Hashes
+`gistsig`
 ==========================
 
 Derek Merck  
@@ -6,35 +6,27 @@ Derek Merck
 Rhode Island Hospital and Brown University  
 Providence, RI  
 
-Store or check file hashes against a gist.
+Sign and verify Python packages by version using a public gist.
 
 ## Setup
 
 ```bash
-$ pip install git+https://github.com/derekmerck/check-hashes
+$ pip install git+https://github.com/derekmerck/gistsig
 ```
-
-Platform Dependencies:  Docker
 
 
 ## Usage
 
-Create a gist for your project and note the id.
+Create a gist to store version hashes and note the id.
 
 ```bash
 $ export GIST_OAUTH_TOK=<github token>
-$ python3 check-hashes.py store  <gist_id> <project> ./README.md
-$ python3 check-hashes.py verify <gist_id> <project> ./README.md
+$ gistsig store  -g <gist_id> <pkgs>
+$ gistsig verify -g <gist_id> <pkgs>
 Process finished with exit code 0
-$ echo "/n" >> ./README.md
-$ python3 check-hashes.py verify <gist_id> <project> ./README.md
-Process finished with exit code 255
-```
-
-For hashing files in Docker images, use the format `docker:image:file`.  For example:
-
-```bash
-$ check-hashes.py print  <gist_id> <project> docker:orthanc-amd64:/usr/local/sbin/Orthanc
+$ echo "/n" >> <pkg>.py
+$ gistsig verify -g <gist_id> <pkgs>
+Process finished with exit code 1
 ```
 
 ## License
