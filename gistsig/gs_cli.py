@@ -6,20 +6,28 @@ Winter 2019
 Sign and verify Python packages using public gists.
 """
 
-import logging, os
+import logging
 from pprint import pformat
 from datetime import datetime
 import click
-from gist import get_gist, update_gist
-from pkg_sig import get_pkg_key, get_pkg_hash
+from gistsig import get_gist, update_gist, get_pkg_info
 
 
 @click.group()
 @click.option('--verbose', '-v', is_flag=True, default=False)
-@click.option('--gist_id')
-@click.option('--gist_oauth_tok')
+@click.option('--gist_id', '-g', help="Public gist id with reference signatures.")
+@click.option('--gist_oauth_tok', '-o', help="Github token (only if pushing new signatures)")
 @click.pass_context
 def cli(ctx, verbose, gist_id, gist_oauth_tok):
+    """
+    Perform a simple public signature lookup to verify local Python package
+    files.
+
+    \b
+    Example:
+    $ gistsig -g 4b0bfbca0a415655d97f36489629e1cc show diana
+    Local package has signature python-diana:2.0.13:9fec66ac3f4f87f8b933c853d8d5f49bdae0c1dc
+    """
     ctx.obj['gist_id'] = gist_id
     ctx.obj['gist_oauth_tok'] = gist_oauth_tok
     if verbose:
@@ -31,11 +39,10 @@ def cli(ctx, verbose, gist_id, gist_oauth_tok):
 
 @cli.command()
 @click.argument('packages', nargs=-1)
-@click.pass_context
-def show(ctx, packages):
+def show(packages):
+    """Compute local package signature."""
     for pkg_name in packages:
-        value = get_pkg_hash(pkg_name=pkg_name)
-        key = get_pkg_key(pkg_name=pkg_name)
+        key, value = get_pkg_info(pkg_name)
         msg = click.style("Local package has signature {}:{}.".format(key, value), fg='yellow')
         click.echo(msg)
 
@@ -44,6 +51,7 @@ def show(ctx, packages):
 @click.argument("packages", nargs=-1)
 @click.pass_context
 def pull(ctx, packages):
+    """Show public package signatures."""
     gist_id = ctx.obj['gist_id']
     for pkg_name in packages:
         pkg_sigs = get_gist(gist_id=gist_id, name=pkg_name)
@@ -56,12 +64,11 @@ def pull(ctx, packages):
 @click.argument("packages", nargs=-1)
 @click.pass_context
 def verify(ctx, packages):
+    """Compare local to public package signatures."""
     exit_code = 0
     gist_id = ctx.obj['gist_id']
     for pkg_name in packages:
-        key = get_pkg_key(pkg_name=pkg_name)
-        value = get_pkg_hash(pkg_name=pkg_name)
-
+        key, value = get_pkg_info(pkg_name)
         pkg_sigs = get_gist(gist_id=gist_id, name=pkg_name)
 
         ref = None
@@ -85,12 +92,12 @@ def verify(ctx, packages):
 @click.argument("packages", nargs=-1)
 @click.pass_context
 def push(ctx, packages):
+    """Update public package signatures"""
     gist_id = ctx.obj['gist_id']
     gist_oauth_tok = ctx.obj['gist_oauth_tok']
     for pkg_name in packages:
         pkg_sigs = get_gist(gist_id=gist_id, name="{}.json".format(pkg_name))
-        value = get_pkg_hash(pkg_name=pkg_name)
-        key = get_pkg_key(pkg_name=pkg_name)
+        key, value = get_pkg_info(pkg_name)
         click.echo("Submitting signature {}:{}".format(key, value))
         pkg_sigs[key] = { "hash": value,
                           "time": datetime.now().isoformat() }

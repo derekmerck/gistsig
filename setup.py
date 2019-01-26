@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 metadata = {
     'name': "gistsig",
-    'version': "1.1.1",
+    'version': "1.1.2",
     'author': "Derek Merck",
     'author_email': "derek_merck@brown.edu"
 }
@@ -20,7 +20,6 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     url="https://github.com/derekmerck/gistsig",
     packages=setuptools.find_packages(),
-    include_package_data=True,
     classifiers=(
         'Development Status :: 3 - Alpha',
         "Programming Language :: Python :: 3",
@@ -30,6 +29,6 @@ setuptools.setup(
     license='MIT',
     entry_points='''
       [console_scripts]
-      gistsig=gs_cli:_cli
+      gistsig=gistsig.gs_cli:_cli
     ''',
 )
