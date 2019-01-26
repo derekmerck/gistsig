@@ -34,7 +34,7 @@ Process finished with exit code 1
 
 ## Algorithm
 
-This simple signing algorithm is _only_ intended to verify that the scripts for an installed Python package have not been tampered with since that version was tested and released.
+This simple hashing algorithm is _only_ intended to verify that the scripts for an installed Python package have not been tampered with since that version was tested and released.  The algorithm is _not_ intended to verify that a package has been cryptographically signed by legitimate developer key.
 
 1. Find package path
 2. `os.walk` the package path and filter for "*.py"
@@ -54,6 +54,14 @@ $ find $(python -c "import diana; print(diana.__path__[0])") -name *.py | sort -
 9fec66ac3f4f87f8b933c853d8d5f49bdae0c1dc
 ```
 
+## Notes
+
+I was asked to implement this as part of risk mitigation for our distributed [DIANA][] project.  
+The goal is to provide an additional layer of source code auditing for embedded devices running
+scripts on private networks.  It seems like an important topic for package management in general,
+especially given the [typo-squatting attacks](https://www.theregister.co.uk/2017/09/15/pretend_python_packages_prey_on_poor_typing/) on the cheese shop.
+
+[DIANA]: https://github.com/derekmerck/diana2
 
 ## License
 
