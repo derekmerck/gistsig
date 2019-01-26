@@ -125,7 +125,11 @@ def push(ctx, packages):
         if not gist_id:
             gist_id = find_gist_id(pkg_name)
 
-        pkg_sigs = get_gist(gist_id=gist_id, name="{}.json".format(pkg_name))
+        pkg_sigs = get_gist(gist_id=gist_id, name=pkg_name)
+
+        logging.debug("Found pkg keys:")
+        logging.debug(pformat(pkg_sigs))
+
         key, value = get_pkg_info(pkg_name)
         click.echo("Submitting signature {}:{}".format(key, value))
         pkg_sigs[key] = { "hash": value,
