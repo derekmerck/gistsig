@@ -56,7 +56,7 @@ $ find $(python -c "import diana; print(diana.__path__[0])") -name *.py | sort -
 
 ## Notes
 
-I was asked to implement this as part of risk mitigation for our distributed [DIANA][] project.  
+I was asked to implement this as part of risk mitigation for our distributed [DIANA][] project. 
 The goal is to provide an additional layer of source code auditing for embedded devices running
 scripts on private networks.  It seems like an important topic for package management in general,
 especially given the [typo-squatting attacks](https://www.theregister.co.uk/2017/09/15/pretend_python_packages_prey_on_poor_typing/) on the cheese shop.
