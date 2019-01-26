@@ -10,7 +10,8 @@ import logging
 from pprint import pformat
 from datetime import datetime
 import click
-from gistsig import get_gist, update_gist, get_pkg_info
+from . import get_gist, update_gist
+from . import get_pkg_info, get_pkg_gist
 
 
 @click.group()
@@ -47,6 +48,16 @@ def show(packages):
         click.echo(msg)
 
 
+def find_gist_id(pkg_name):
+    # Check the package
+    gist_id = get_pkg_gist(pkg_name)
+    if gist_id and \
+       click.confirm("No reference gist set, use package declared gist? ({})".format(gist_id)):
+        return gist_id
+    click.echo("No gist found for this package")
+    return None
+
+
 @click.command()
 @click.argument("packages", nargs=-1)
 @click.pass_context
@@ -54,6 +65,10 @@ def pull(ctx, packages):
     """Show public package signatures."""
     gist_id = ctx.obj['gist_id']
     for pkg_name in packages:
+
+        if not gist_id:
+            gist_id = find_gist_id(pkg_name)
+
         pkg_sigs = get_gist(gist_id=gist_id, name=pkg_name)
         msg = click.style("Reference package has signatures:", fg='yellow')
         click.echo(msg)
@@ -67,8 +82,13 @@ def verify(ctx, packages):
     """Compare local to public package signatures."""
     exit_code = 0
     gist_id = ctx.obj['gist_id']
+
     for pkg_name in packages:
         key, value = get_pkg_info(pkg_name)
+
+        if not gist_id:
+            gist_id = find_gist_id(pkg_name)
+
         pkg_sigs = get_gist(gist_id=gist_id, name=pkg_name)
 
         ref = None
@@ -95,7 +115,16 @@ def push(ctx, packages):
     """Update public package signatures"""
     gist_id = ctx.obj['gist_id']
     gist_oauth_tok = ctx.obj['gist_oauth_tok']
+
+    if not gist_oauth_tok:
+        click.echo("Need a gist oauth token to push data.  Set with envvar or on the cli.")
+        exit(1)
+
     for pkg_name in packages:
+
+        if not gist_id:
+            gist_id = find_gist_id(pkg_name)
+
         pkg_sigs = get_gist(gist_id=gist_id, name="{}.json".format(pkg_name))
         key, value = get_pkg_info(pkg_name)
         click.echo("Submitting signature {}:{}".format(key, value))

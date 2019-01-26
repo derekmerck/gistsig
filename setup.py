@@ -1,14 +1,13 @@
-import setuptools
+import setuptools, re
 
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
-metadata = {
-    'name': "gistsig",
-    'version': "1.1.2",
-    'author': "Derek Merck",
-    'author_email': "derek_merck@brown.edu"
-}
+with open("gistsig/__init__.py") as f:
+    content = f.read()
+    match = re.findall(r"__([a-z0-9_]+)__\s*=\s*\"([^\"]+)\"", content)
+    print(match)
+    metadata = dict(match)
 
 setuptools.setup(
     name=metadata.get("name"),
@@ -29,6 +28,6 @@ setuptools.setup(
     license='MIT',
     entry_points='''
       [console_scripts]
-      gistsig=gistsig.gs_cli:_cli
+      gistsig=gistsig.cli:_cli
     ''',
 )

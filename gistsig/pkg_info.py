@@ -39,3 +39,12 @@ def get_pkg_info(pkg_name):
 
     return key, value
 
+
+def get_pkg_gist(pkg_name):
+
+    pkg = __import__(pkg_name)
+    try:
+        return pkg.__gistsig__
+    except AttributeError:
+        return None
+
